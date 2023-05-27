@@ -1,0 +1,55 @@
+
+
+  
+
+  <!-- Header -->
+  <div class="jumbotron text-center">
+    <h1>Stock Market Data</h1>
+  </div>
+
+  <!-- Stock Data Table -->
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div #myElement>
+          <i class="fa-sharp fa-solid fa-up"></i>
+          
+          <i class="fa fa-arrow-down"></i>
+          <i class="fas fa-thumbs-up"></i>
+
+                </div>
+        <!-- <div #priceRef>5</div> -->
+
+        <table  class="table table-striped">
+          <thead>
+            <tr>
+              <th class="text-center">ID</th>
+              <th class="text-center">Name </th>
+              <th class="text-center">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let stock of Stocks; let i = index">
+              <td  class="text-center">{{stock.id}}</td>
+              <td  class="text-center"><a href="#">{{stock.name}}</a></td>
+              <td class="random text-center d-flex justify-content-center 
+              align-items-center" >  ${{stock.price}}</td>
+              <!-- <td>$100</td> -->
+            </tr>
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="text-center">
+    <p>Copyright © Stock Market Data
+  </footer>
+
+  <!-- jQuery and Bootstrap JavaScript -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<!-- </body>
+</html> -->

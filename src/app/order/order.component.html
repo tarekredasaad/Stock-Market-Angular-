@@ -1,0 +1,155 @@
+
+ 
+  
+  
+  <header class="jumbotron jumbotron-fluid">
+    <div class="container">
+      <h1 class="display-4">Stock's Orders Data</h1>
+      <p class="lead">Lorem ipsum dolor sit amet,
+         consectetur adipiscing elit.</p>
+    </div>
+  </header>
+  <div class="container mt-4 mb-4">
+    <div class="row">
+      <div class="col-md-8 col-sm-12">
+        <h2>Stock's Orders Table</h2>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+               
+                <th>Person Name</th>
+                <th>Stock Name</th>
+                <th>Price</th>
+                <th>Quantity</th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              <tr *ngFor="let order of getOrdersForPage() ">
+               
+                <td>{{order.personName}}</td>
+                <td>{{order.stock.name}}</td>
+                <td>${{order.price}}</td>
+                <td>{{order.quantity}}</td>
+              </tr>
+              
+            </tbody>
+          </table>
+        </div>
+        <!-- <div class="container">
+          <div class="row">
+            <div class="col-md-12"> 
+              <div class="card">
+                <div *ngFor="let order of getOrdersForPage();" class="card mb-4">
+                  <div class="card-body">
+                    <h5 class="card-title">{{order.personName}}</h5>
+                    <p class="card-text">{{order.stock.name}}</p>
+                    <p class="card-text">${{order.price}} | {{order.quantity}} qty</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div> -->
+                      
+              <div class="row mt-4">
+              <div class="col-md-12">
+                <nav aria-label="Page navigation example">
+                  <ul class="pagination justify-content-center">
+                    <button class="btn-primary" (click)="currentPage = currentPage - 1" 
+                    [disabled]="currentPage === 1">Previous</button>
+                    <li class="page-item" *ngFor="let page of pages"
+                     [class.active]="currentPage == page">
+                      <a class="page-link"  (click)="setPage(page)">{{page}}</a>
+                    </li>
+                    <button class="btn-primary" (click)="currentPage = currentPage + 1" 
+                    [disabled]="currentPage === getCeil(Orders.length / itemsPerPage)">Next</button>
+                  </ul>
+                </nav>
+              </div>
+          </div>
+        </div>
+      <!-- </div> -->
+      <div class="col-md-4 col-sm-12">
+        <div >
+          <form [formGroup]="myForm" novalidate (ngSubmit)="onSubmit()">
+            {{ myForm}}
+              <div class="form-group">
+                <label for="personName">Client Name</label>  
+                <input type="text" id="personName" class="form-control"
+                       formControlName="personName"   [(ngModel)]="order.personName" 
+                        placeholder="Enter client name"
+                        [class.is-invalid]="personName?.invalid &&personName?.touched" >
+                       <div *ngIf="personName?.invalid && personName?.touched" class="invalid-feedback">
+                        <small *ngIf="personName?.errors?.['required']" 
+                        class="text-danger">Client Name is required</small>
+                        <small *ngIf="personName?.errors?.['minlength']" 
+                        class="text-danger">User name at least 5 characters</small>
+                        <small *ngIf="personName?.errors?.['maxlength']"
+                         class="text-danger">User name contains maximum 15 characters</small>
+                        
+                        Please enter a valid client name.
+                      </div>
+              </div>
+              <div class="form-group">
+                <label for="stockId">Select Stock</label>
+                <select id="stockId" class="form-control" [(ngModel)]="order.stockID" (change)="onSelect()"
+                        formControlName="stockID">
+                  <option value="">-- Select stock --</option>
+                  <option *ngFor="let stock of Stocks" [value]="stock.id">{{ stock.name }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="price">Select Price</label>
+                <input type="text" id="price" class="form-control"
+                 [(ngModel)]="order.price" value="{{inputPrice}}" readonly
+                        formControlName="price">
+                  
+              </div>
+              <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input type="text" id="quantity" class="form-control" (change)="totalAmount()"  
+                       formControlName="quantity" [(ngModel)]="order.quantity" 
+                       placeholder="Enter quantity" pattern="^[0-9]*$"
+                        [class.is-invalid]="quantity?.invalid &&quantity?.touched" > 
+                <div *ngIf="quantity?.touched || quantity?.dirty  && quantity?.invalid ">
+                  <small class="form-text text-danger" *ngIf="quantity?.errors?.['required']">
+                    Quantity is required
+                  </small>
+                  <small class="form-text text-danger" *ngIf="quantity?.errors?.['pattern']">
+                    Quantity must be a number
+                  </small>
+                  <small class="form-text text-danger" *ngIf="quantity?.errors?.['min']">
+                    Quantity must be greater than 0
+                  </small>
+                </div>
+              </div>
+  
+              <div class="form-group">
+                <label for="total">Total Amount</label>
+                <input type="text" id="total" class="form-control" 
+                 value="{{TotalAmountPayment}}" readonly
+                        >
+                  
+              </div>
+              <button type="submit" [disabled]="myForm.invalid" class="btn btn-primary">Buy </button>
+            </form>
+      </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <footer class="bg-dark text-light py-3">
+    <div class="container">
+      <p>&copy; 2023 My Company. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS and jQuery -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+          integrity="sha384-KJ3o2DKtIkvYIK3UENzmZ/zRXPFOpPoNTNUAiemEStzfXTnYQaKSX2p+76U8J6t5"
+          crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+          integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+          crossorigin="anonymous"></script>
