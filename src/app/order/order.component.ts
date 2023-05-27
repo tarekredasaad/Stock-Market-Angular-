@@ -5,9 +5,7 @@ import { Stock } from '../Models/stock';
 import { StockService } from '../Services/stock.service';
 import { OrderService } from '../Services/order.service';
 import { HubConnection,HubConnectionBuilder } from '@aspnet/signalr';
-import { SignalRService } from '../Services/signal-r.service';
 import * as signalR from '@aspnet/signalr';
-// import * as signalR from '@microsoft/signalr'
 
 @Component({
   selector: 'app-order',
@@ -18,12 +16,11 @@ export class OrderComponent implements OnInit{
 
   
 
-  // private hubConnectionBuilder!:HubConnection
 
   constructor(private fb: FormBuilder,
     private orderService:OrderService,
-    private StockService:StockService,
-    private signalRService: SignalRService) {
+    private StockService:StockService
+   ) {
     this.createForm();
   }
   private hubConnectionBuilder!: HubConnection;
@@ -101,7 +98,8 @@ export class OrderComponent implements OnInit{
     })
   }
   StartHubConnectionForChangeprice(){
-    this.hubConnectionBuilderForUpdatePrice = new signalR.HubConnectionBuilder()
+    this.hubConnectionBuilderForUpdatePrice =
+     new signalR.HubConnectionBuilder()
     .withUrl('http://localhost:5092/RandomNumber',
        {
          skipNegotiation: true,
@@ -119,7 +117,8 @@ export class OrderComponent implements OnInit{
     setInterval( async ()=>{
      
 
-      await  this.hubConnectionBuilderForUpdatePrice.invoke('sendRandomNumber')
+      await  this.hubConnectionBuilderForUpdatePrice
+      .invoke('sendRandomNumber')
         console.log("after invoke con here")
         const self = this;
         for(let i =0;i<this.Stocks.length;i++){
@@ -181,7 +180,8 @@ export class OrderComponent implements OnInit{
   }
 
   get pages() {
-    const pageCount = Math.ceil(this.Orders.length / 5); // Change 10 to the number of items per page
+    const pageCount = Math.ceil(this.Orders.length / 5); 
+    // Change 10 to the number of items per page
     return Array(pageCount).fill(0).map((_, i) => i + 1);
   }
 
@@ -196,7 +196,8 @@ export class OrderComponent implements OnInit{
   }
 
   get totalPages() {
-    return Math.ceil(this.Orders.length / 5); // Change 10 to the number of items per page
+    return Math.ceil(this.Orders.length / 5);
+     // Change 10 to the number of items per page
   }
 
   nextPage() {
@@ -208,10 +209,14 @@ export class OrderComponent implements OnInit{
 
   createForm() {
     this.myForm = this.fb.group({
-      personName: ['', [Validators.required,Validators.minLength(3),Validators.maxLength(15)]],
+      personName: ['', [Validators.required,
+        Validators.minLength(3)
+        ,Validators.maxLength(15)]],
       stockID: [null, Validators.required],
       price: [null, Validators.required],
-      quantity: ['', [Validators.required, Validators.pattern('^[0-9]*$'),Validators.min(1)]]
+      quantity: ['', [Validators.required,
+         Validators.pattern('^[0-9]*$'),
+         Validators.min(1)]]
     });
   }
 
@@ -224,7 +229,7 @@ export class OrderComponent implements OnInit{
     return this.myForm.get('quantity');
   }
 
-  onSelect(){
+  onSelectToChangePrice(){
     console.log(this.order.stockID)
     for(let i=0;i<this.Stocks.length;i++){
       if(this.Stocks[i].id == this.order.stockID){

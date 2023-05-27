@@ -1,7 +1,7 @@
-import { Component,OnDestroy, OnInit,ElementRef, ViewChild } from '@angular/core';
+import { Component,OnDestroy, OnInit,ElementRef, ViewChild }
+ from '@angular/core';
 import { Stock } from '../Models/stock';
 import { StockService } from '../Services/stock.service';
-import { SignalRService } from '../Services/signal-r.service';
 import { HubConnection } from '@aspnet/signalr';
 import * as signalR from '@aspnet/signalr';
 import { LogLevel } from '@microsoft/signalr';
@@ -18,7 +18,8 @@ export class StockComponent implements OnInit{
  
 
   
-  constructor(private StockService:StockService,private signalRService:SignalRService){}
+  constructor(private StockService:StockService
+    ){}
 
   Stocks: Stock[] = []
   NewStocks: Stock[] = []
@@ -51,20 +52,15 @@ export class StockComponent implements OnInit{
 
       
       
-        // this.hubConnectionBuilder.off('OrderAdded');
        this.InvokeHubAndUpdatePrice()
 
         this.HubIsOpen()
 
 
-      // this.signalRService.generateRandomNumber()
-
-      // this.setInnerText()
+      
     }
-  // ngOnDestroy(): void {
-  //   // clearInterval(this.intervalId); // clear the interval when the component is destroyed
 
-  // }
+ 
 
 
     getOldStocksAfterUpdated(){
@@ -120,7 +116,6 @@ export class StockComponent implements OnInit{
     }
     HubIsOpen(){
       this.hubConnectionBuilder.on('newRandomNumber', (data: any) => {
-        // this.orderData =data
         
         this.random=data
         var randoms = document.getElementsByClassName('random');
@@ -136,21 +131,18 @@ export class StockComponent implements OnInit{
             this.arrowColor='text-danger'
             this.arrow ='fa fa-arrow-down'
             this.indecator = 'bg-danger';
-            // ${this.arrowColor}
           }
           randoms[i].innerHTML = ` 
-           <div class="${this.indecator} " style='font-size : 18;color:white; 
+           <div class="${this.indecator}
+            " style='font-size : 18;color:white; 
            width: 40px; '>
            
           ${this.NewStocks[i].price}</div> ` ;
         }
-        // console.log(this.orderData);
       })
     }
 
-//  updateValue() {
-//   this.value = Math.floor(Math.random() * 100) + 1;
-// }
+
 
   showStocks(): void {
     this.StockService.GetStocks().subscribe({

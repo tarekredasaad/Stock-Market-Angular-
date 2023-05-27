@@ -55,14 +55,18 @@
               <div class="col-md-12">
                 <nav aria-label="Page navigation example">
                   <ul class="pagination justify-content-center">
-                    <button class="btn-primary" (click)="currentPage = currentPage - 1" 
+                    <button class="btn-primary" (click)="currentPage
+                     = currentPage - 1" 
                     [disabled]="currentPage === 1">Previous</button>
                     <li class="page-item" *ngFor="let page of pages"
                      [class.active]="currentPage == page">
-                      <a class="page-link"  (click)="setPage(page)">{{page}}</a>
+                      <a class="page-link"  (click)="setPage(page)">
+                        {{page}}</a>
                     </li>
-                    <button class="btn-primary" (click)="currentPage = currentPage + 1" 
-                    [disabled]="currentPage === getCeil(Orders.length / itemsPerPage)">Next</button>
+                    <button class="btn-primary" (click)="currentPage 
+                    = currentPage + 1" 
+                    [disabled]="currentPage === getCeil(Orders.length 
+                    / itemsPerPage)">Next</button>
                   </ul>
                 </nav>
               </div>
@@ -76,49 +80,67 @@
               <div class="form-group">
                 <label for="personName">Client Name</label>  
                 <input type="text" id="personName" class="form-control"
-                       formControlName="personName"   [(ngModel)]="order.personName" 
+                       formControlName="personName"  
+                        [(ngModel)]="order.personName" 
                         placeholder="Enter client name"
-                        [class.is-invalid]="personName?.invalid &&personName?.touched" >
-                       <div *ngIf="personName?.invalid && personName?.touched" class="invalid-feedback">
+                        [class.is-invalid]="personName?.invalid
+                         &&personName?.touched" >
+                       <div *ngIf="personName?.invalid &&
+                        personName?.touched" class="invalid-feedback">
                         <small *ngIf="personName?.errors?.['required']" 
-                        class="text-danger">Client Name is required</small>
+                        class="text-danger">Client Name is required
+                      </small>
                         <small *ngIf="personName?.errors?.['minlength']" 
                         class="text-danger">User name at least 5 characters</small>
                         <small *ngIf="personName?.errors?.['maxlength']"
-                         class="text-danger">User name contains maximum 15 characters</small>
+                         class="text-danger">User name contains maximum
+                          15 characters</small>
                         
                         Please enter a valid client name.
                       </div>
               </div>
               <div class="form-group">
                 <label for="stockId">Select Stock</label>
-                <select id="stockId" class="form-control" [(ngModel)]="order.stockID" (change)="onSelect()"
+                <select id="stockId" class="form-control"
+                 [(ngModel)]="order.stockID" 
+                 (change)="onSelectToChangePrice()"
                         formControlName="stockID">
                   <option value="">-- Select stock --</option>
-                  <option *ngFor="let stock of Stocks" [value]="stock.id">{{ stock.name }}</option>
+                  <option *ngFor="let stock of Stocks" 
+                  [value]="stock.id">{{ stock.name }}</option>
                 </select>
               </div>
               <div class="form-group">
                 <label for="price">Select Price</label>
-                <input type="text" id="price" class="form-control"
-                 [(ngModel)]="order.price" value="{{inputPrice}}" readonly
+                <input type="text" id="price" 
+                class="form-control"
+                 [(ngModel)]="order.price"
+                  value="{{inputPrice}}" readonly
                         formControlName="price">
                   
               </div>
               <div class="form-group">
                 <label for="quantity">Quantity</label>
-                <input type="text" id="quantity" class="form-control" (change)="totalAmount()"  
-                       formControlName="quantity" [(ngModel)]="order.quantity" 
-                       placeholder="Enter quantity" pattern="^[0-9]*$"
-                        [class.is-invalid]="quantity?.invalid &&quantity?.touched" > 
-                <div *ngIf="quantity?.touched || quantity?.dirty  && quantity?.invalid ">
-                  <small class="form-text text-danger" *ngIf="quantity?.errors?.['required']">
+                <input type="text" id="quantity" 
+                class="form-control" (change)="totalAmount()"  
+                       formControlName="quantity"
+                        [(ngModel)]="order.quantity" 
+                       placeholder="Enter quantity" 
+                       pattern="^[0-9]*$"
+                        [class.is-invalid]="quantity?.invalid 
+                        &&quantity?.touched" > 
+                <div *ngIf="quantity?.touched || quantity?.dirty 
+                 && quantity?.invalid ">
+                  <small class="form-text text-danger"
+                   *ngIf="quantity?.errors?.['required']">
                     Quantity is required
                   </small>
-                  <small class="form-text text-danger" *ngIf="quantity?.errors?.['pattern']">
+                  <small class="form-text text-danger"
+                   *ngIf="quantity?.errors?.['pattern']">
                     Quantity must be a number
                   </small>
-                  <small class="form-text text-danger" *ngIf="quantity?.errors?.['min']">
+                  <small class="form-text text-danger" 
+                  *ngIf="quantity?.errors?.['min']">
                     Quantity must be greater than 0
                   </small>
                 </div>
@@ -131,7 +153,8 @@
                         >
                   
               </div>
-              <button type="submit" [disabled]="myForm.invalid" class="btn btn-primary">Buy </button>
+              <button type="submit" [disabled]="myForm.invalid"
+               class="btn btn-primary">Buy </button>
             </form>
       </div>
       </div>
