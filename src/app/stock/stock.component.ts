@@ -4,6 +4,7 @@ import { StockService } from '../Services/stock.service';
 import { SignalRService } from '../Services/signal-r.service';
 import { HubConnection } from '@aspnet/signalr';
 import * as signalR from '@aspnet/signalr';
+import { LogLevel } from '@microsoft/signalr';
 
 @Component({
   selector: 'app-stock',
@@ -21,6 +22,7 @@ export class StockComponent implements OnInit{
 
   Stocks: Stock[] = []
   NewStocks: Stock[] = []
+  OldStocks: Stock[] = []
   indecator=''
   arrow = ''
   arrowColor=''
@@ -34,36 +36,71 @@ export class StockComponent implements OnInit{
 
  async ngOnInit(){
 
-   
-   this.hubConnectionBuilder = new signalR.HubConnectionBuilder()
-   .withUrl('http://localhost:5092/RandomNumber',
-      {
-        skipNegotiation: true,
-        transport: signalR.HttpTransportType.WebSockets
-      }).configureLogging(signalR.LogLevel.Debug).build();
-      
-      setTimeout(() => {
-        this.hubConnectionBuilder.start().then(() => {
-          console.log("connection started");
-        }).catch(err => console.log(err));
-      }, 1000);
+   this.StartHubConnection()
+  
       
       
       
      
       
-      
       this.showStocks()
-      
 
-      setInterval(async ()=>{
+     this.getNewStocksAfterUpdated()
+
+     this.getOldStocksAfterUpdated()
+
+      
+      
+        // this.hubConnectionBuilder.off('OrderAdded');
+       this.InvokeHubAndUpdatePrice()
+
+        this.HubIsOpen()
+
+
+      // this.signalRService.generateRandomNumber()
+
+      // this.setInnerText()
+    }
+  // ngOnDestroy(): void {
+  //   // clearInterval(this.intervalId); // clear the interval when the component is destroyed
+
+  // }
+
+
+    getOldStocksAfterUpdated(){
+      setInterval( ()=>{
+        
+        this.StockService.GetStocks().subscribe({
+          next: data => this.OldStocks = data,
+          error: err => this.Error = err,
+        })
+      },3200)
+    }
+    getNewStocksAfterUpdated(){
+      setInterval( ()=>{
         
         this.StockService.GetStocks().subscribe({
           next: data => this.NewStocks = data,
           error: err => this.Error = err,
         })
-      },6000)
-      
+      },2500)
+    }
+    StartHubConnection(){
+      this.hubConnectionBuilder = new signalR.HubConnectionBuilder()
+      .withUrl('http://localhost:5092/RandomNumber',
+         {
+           skipNegotiation: true,
+           transport: signalR.HttpTransportType.WebSockets
+         }).configureLogging(signalR.LogLevel.Debug).build();
+         
+         setTimeout(() => {
+           this.hubConnectionBuilder.start().then(() => {
+             console.log("connection started");
+           }).catch(err => console.log(err));
+         }, 1000);
+    }
+
+    InvokeHubAndUpdatePrice(){
       setInterval( async ()=>{
        
 
@@ -79,48 +116,41 @@ export class StockComponent implements OnInit{
             })
           }
 
-        },4000)
-        // this.hubConnectionBuilder.off('OrderAdded');
-       
-         this.hubConnectionBuilder.on('newRandomNumber', (data: any) => {
-          // this.orderData =data
-          
-          this.random=data
-          var randoms = document.getElementsByClassName('random');
-          for(let i =0 ;i<randoms.length; i++){
-           
-            if(this.NewStocks[i].price > this.Stocks[i].price){
-              this.indecator = 'bg-success';
-              this.arrow ='fa fa-arrow-up'
-              this.arrowColor='text-success'
-            }else{
-              this.arrowColor='text-danger'
-              this.arrow ='fa fa-arrow-down'
-              this.indecator = 'bg-danger';
-              // ${this.arrowColor}
-            }
-            randoms[i].innerHTML = ` 
-             <div class="${this.indecator} " style='font-size : 18;color:white; 
-             width: 40px; '>
-             
-            ${this.NewStocks[i].price}</div> ` ;
-          }
-          // console.log(this.orderData);
-        })
-
-
-      this.signalRService.generateRandomNumber()
-
-      // this.setInnerText()
+        },2000)
     }
-  // ngOnDestroy(): void {
-  //   // clearInterval(this.intervalId); // clear the interval when the component is destroyed
+    HubIsOpen(){
+      this.hubConnectionBuilder.on('newRandomNumber', (data: any) => {
+        // this.orderData =data
+        
+        this.random=data
+        var randoms = document.getElementsByClassName('random');
+        for(let i =0 ;i<randoms.length; i++){
+         
+          if(this.NewStocks[i].price > this.OldStocks[i].price){
+            console.log(this.NewStocks[i].price)
+            console.log(this.Stocks[i].price)
+            this.indecator = 'bg-success';
+            this.arrow ='fa fa-arrow-up'
+            this.arrowColor='text-success'
+          }else{
+            this.arrowColor='text-danger'
+            this.arrow ='fa fa-arrow-down'
+            this.indecator = 'bg-danger';
+            // ${this.arrowColor}
+          }
+          randoms[i].innerHTML = ` 
+           <div class="${this.indecator} " style='font-size : 18;color:white; 
+           width: 40px; '>
+           
+          ${this.NewStocks[i].price}</div> ` ;
+        }
+        // console.log(this.orderData);
+      })
+    }
 
-  // }
-
- updateValue() {
-  this.value = Math.floor(Math.random() * 100) + 1;
-}
+//  updateValue() {
+//   this.value = Math.floor(Math.random() * 100) + 1;
+// }
 
   showStocks(): void {
     this.StockService.GetStocks().subscribe({

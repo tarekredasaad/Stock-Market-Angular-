@@ -27,6 +27,7 @@ export class OrderComponent implements OnInit{
     this.createForm();
   }
   private hubConnectionBuilder!: HubConnection;
+  private hubConnectionBuilderForUpdatePrice!: HubConnection;
   myForm!: FormGroup ;
   Stocks: Stock[] = [];
   Orders:order[] =[]
@@ -50,49 +51,29 @@ export class OrderComponent implements OnInit{
       price:0
     }
   }
+
  async ngOnInit(){
-  setInterval(async ()=>{
-        
-    this.StockService.GetStocks().subscribe({
-      next: data => this.Stocks = data,
-      error: err => this.Error = err,
-    })
-  },2000)
-    // this.showOrders()
-    this.orderService.GetOrders().subscribe({
-      next: data => this.Orders = data,
-      error: err => this.Error = err,
-    })
-    // console.log(this.Orders[1].stock)
-    // var prices = document.getElementById("price");
-  
-    this.hubConnectionBuilder = new signalR.HubConnectionBuilder()
-    .withUrl('http://localhost:5092/OrderHub',
-      {
-        skipNegotiation: true,
-        transport: signalR.HttpTransportType.WebSockets
-      }).configureLogging(signalR.LogLevel.Debug).build();
+ 
+    this.getStocksEveryTwoSecond()
+    this.showOrders()
+   
+  this.StartHubConnection()
 
-    setTimeout(async () => {
-
-      
-      this.hubConnectionBuilder.start().then(() => {
-        console.log("connection started");
-      }).catch(err => console.log(err));
-    }, 1000);
-
-    this.hubConnectionBuilder.on('Price', (newPrice) => {
-      console.log(newPrice);
-      
-      this.inputPrice = newPrice
-    })
+  this.StartHubConnectionForChangeprice()
+  this.InvokeHubAndUpdatePrice()
     
-     this.hubConnectionBuilder.on('OrderAdded', (
+ this.openHubToListenAnyChangeInPrice()
+
+  this.openHubToListenAnyNewOrderCreatedImmediatlyWithoutRefresh()
+    
+    
+}
+
+  openHubToListenAnyNewOrderCreatedImmediatlyWithoutRefresh(){
+    this.hubConnectionBuilder.on('OrderAdded', (
       data: any,price:any,quantity:any,stockName:any) => {
       this.orderData = data;
-      console.log("data");
-      console.log(data);
-      console.log(this.orderData);
+   
       var tablebody = document.getElementById("tbody");
       
       var row = document.createElement('tr');
@@ -114,36 +95,96 @@ export class OrderComponent implements OnInit{
       row.append(rowDataThree);
       row.append(rowDataFour);
       row.className='bg-success'
-      // tablebody!.appendChild(row) ;//= `<tr> ${data} </tr>`;
-      // (`<tr class="bg-success">
-      // <td>18818</td>
-      // <td>${data}</td>
-      // <td>${stockName}</td>
-      // <td>${price}</td>
-      // <td>${quantity}</td>
-      // </tr>`);
+      
       tablebody!.prepend(row);//+=`<tr class="bg-success">
-      //  <td>18818</td>
-      //  <td>${data}</td>
-      //  <td>${stockName}</td>
-      //  <td>${price}</td>
-      //  <td>${quantity}</td>
-      //  </tr>`
+      
+    })
+  }
+  StartHubConnectionForChangeprice(){
+    this.hubConnectionBuilderForUpdatePrice = new signalR.HubConnectionBuilder()
+    .withUrl('http://localhost:5092/RandomNumber',
+       {
+         skipNegotiation: true,
+         transport: signalR.HttpTransportType.WebSockets
+       }).configureLogging(signalR.LogLevel.Debug).build();
+       
+       setTimeout(() => {
+         this.hubConnectionBuilderForUpdatePrice.start().then(() => {
+           console.log("connection started");
+         }).catch(err => console.log(err));
+       }, 1000);
+  }
+
+  InvokeHubAndUpdatePrice(){
+    setInterval( async ()=>{
+     
+
+      await  this.hubConnectionBuilderForUpdatePrice.invoke('sendRandomNumber')
+        console.log("after invoke con here")
+        const self = this;
+        for(let i =0;i<this.Stocks.length;i++){
+          let id = this.Stocks[i].id
+          let price = Math.floor(Math.random() * 100) + 1;
+          this.StockService.updateStock(id,price).subscribe({
+            next: data => console.log(data) ,
+            error: err => console.log(err),
+          })
+        }
+
+      },2000)
+  }
+
+  openHubToListenAnyChangeInPrice(){
+    this.hubConnectionBuilder.on('Price', (newPrice) => {
+      console.log(newPrice);
+      
+      this.inputPrice = newPrice
     })
     
   }
+
+  StartHubConnection(){
+    this.hubConnectionBuilder = new signalR.HubConnectionBuilder()
+      .withUrl('http://localhost:5092/OrderHub',
+        {
+          skipNegotiation: true,
+          transport: signalR.HttpTransportType.WebSockets
+        }).configureLogging(signalR.LogLevel.Debug).build();
+
+      setTimeout(async () => {
+
+        
+        this.hubConnectionBuilder.start().then(() => {
+          console.log("connection started");
+        }).catch(err => console.log(err));
+      }, 1000);
+  }
+
+  getStocksEveryTwoSecond(){
+    setInterval(async ()=>{
+        
+      this.StockService.GetStocks().subscribe({
+        next: data => this.Stocks = data,
+        error: err => this.Error = err,
+      })
+    },2000)
+  }
+
   getCeil(num: number): number {
     return Math.ceil(num);
   }
+
   prevPage() {
     if (this.currentPage > 1) {
       this.currentPage--;
     }
   }
+
   get pages() {
     const pageCount = Math.ceil(this.Orders.length / 5); // Change 10 to the number of items per page
     return Array(pageCount).fill(0).map((_, i) => i + 1);
   }
+
   getOrdersForPage() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
@@ -178,6 +219,7 @@ export class OrderComponent implements OnInit{
   get personName() {
     return this.myForm.get('personName');
   }
+
   get quantity() {
     return this.myForm.get('quantity');
   }
@@ -205,21 +247,12 @@ export class OrderComponent implements OnInit{
   totalAmount(){
     this.TotalAmountPayment = this.inputPrice * this.order.quantity
   }
-  async addElement() {
 
-    await this.signalRService.StartOrderConnection();
-    console.log(this.order)
-    setTimeout(async () => {
-      await this.signalRService.askServer(this.order)
-    }, 3000);
-
-   
-  }
+ 
 
 async  onSubmit() {
     // Handle form submission here
     console.log(this.myForm.value);
-    // this.createOrder()
     this.objDto = this.myForm.value
     this.orderService.createOrder(this.myForm.value).subscribe({
       next: data => console.log(data),
@@ -239,19 +272,12 @@ async  onSubmit() {
       const self = this;
 
     },2000)
-    // this.hubConnectionBuilder.off('OrderAdded');
    
    
 
   }
 
- async createOrder(){
-   this.orderService.createOrder(this.myForm.value).subscribe({
-     next: data => console.log(data),
-     error: err => console.log(err),
-    })
-    await  this.addElement()
-  }
+ 
   showOrders(): void {
     this.orderService.GetOrders().subscribe({
       next: data => this.Orders = data,
@@ -260,13 +286,6 @@ async  onSubmit() {
     console.log(this.Orders)
   }
 
-  // showStocks(): void {
-  //   this.StockService.GetStocks().subscribe({
-  //     next: data => this.Stocks = data,
-  //     error: err => this.Error = err,
-  //   })
-  //   console.log(this.Stocks)
-  // }
-
+  
 
 }
