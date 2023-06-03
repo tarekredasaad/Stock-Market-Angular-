@@ -46,7 +46,6 @@ export class StockComponent implements OnInit{
       
       this.showStocks()
 
-     this.getNewStocksAfterUpdated()
 
      this.getOldStocksAfterUpdated()
 
@@ -72,15 +71,7 @@ export class StockComponent implements OnInit{
         })
       },3200)
     }
-    getNewStocksAfterUpdated(){
-      setInterval( ()=>{
-        
-        this.StockService.GetStocks().subscribe({
-          next: data => this.NewStocks = data,
-          error: err => this.Error = err,
-        })
-      },2500)
-    }
+    
     StartHubConnection(){
       this.hubConnectionBuilder = new signalR.HubConnectionBuilder()
       .withUrl('http://localhost:5092/RandomNumber',
@@ -116,8 +107,10 @@ export class StockComponent implements OnInit{
     }
     HubIsOpen(){
       this.hubConnectionBuilder.on('newRandomNumber', (data: any) => {
-        
-        this.random=data
+        console.log(data)
+        this.NewStocks=data
+        console.log(this.NewStocks)
+
         var randoms = document.getElementsByClassName('random');
         for(let i =0 ;i<randoms.length; i++){
          
